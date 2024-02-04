@@ -19,40 +19,39 @@ conn.connect(function (err) {
 const app = express();
 app.use(bodyParser.json());
 
-//USERS
 //GET ALL USERS
-const getAllUser = async (req, res) => {
-  try {
-    const { limit, offset, sort } = req.query;
-    if (!req.query) {
-      res.status(400).send({
-        message: "bad request",
-      });
-    }
-    let queryString = `SELECT id,name,email,is_active,password from users order by id ${sort} LIMIT ? OFFSET ? `;
-    const [result] = await conn.promise().execute(queryString, [limit, offset]);
+// const getAllUser = async (req, res) => {
+//   try {
+//     const { limit, offset, sort } = req.query;
+//     if (!req.query) {
+//       res.status(400).send({
+//         message: "bad request",
+//       });
+//     }
+//     let queryString = `SELECT id,name,email,is_active,password from users order by id ${sort} LIMIT ? OFFSET ? `;
+//     const [result] = await conn.promise().execute(queryString, [limit, offset]);
 
-    let countQueryString = `SELECT count(id) as count from users `;
-    const [countResult] = await conn.promise().execute(countQueryString);
+//     let countQueryString = `SELECT count(id) as count from users `;
+//     const [countResult] = await conn.promise().execute(countQueryString);
 
-    const responseBody = {
-      message: "Successfully got all users",
-      list: result,
-      count: countResult[0].count,
-    };
-    res.status(200).send(responseBody);
-    // console.log(result);
-  } catch (error) {
-    console.log(error);
-    res.status(500).send({
-      message: "Error while getting user",
-      error,
-    });
-  }
-};
+//     const responseBody = {
+//       message: "Successfully got all users",
+//       list: result,
+//       count: countResult[0].count,
+//     };
+//     res.status(200).send(responseBody);
+//     // console.log(result);
+//   } catch (error) {
+//     console.log(error);
+//     res.status(500).send({
+//       message: "Error while getting user",
+//       error,
+//     });
+//   }
+// };
 
-//GET SINGLE USER
-const getUser = async (req, res) => {
+//GET USER
+const getUserById = async (req, res) => {
   try {
     const { id } = req.params;
     // console.log(req.params);
@@ -81,10 +80,6 @@ const getUser = async (req, res) => {
     });
   }
 };
-
-// GET user
-app.get("/v1/users", getAllUser);
-app.get("/v1/users/:id", getUser);
 
 //GET PRODUCTS
 const getAllProducts = async (req, res) => {
@@ -158,17 +153,18 @@ const getAllProducts = async (req, res) => {
 const getProductById = async (req, res) => {
   try {
     const { id } = req.params;
-    console.log(req.params);
-    if (!req.params) {
+    // console.log(req.params);
+    if (!id) {
       res.status(400).send({
         message: "bad request",
       });
     }
-    let queryString = `SELECT B.product_id as productId,B.name as productName,B.description as description,B.image as image,
+    let queryString = `SELECT B.product_id as productId,B.name as productName,
+    B.description as description,B.image as image,
     B.rating as rating,B.price as price,
-    B.type as type,C.name as sizeName  from product_size as A
-    inner join products as B on B.product_id = A.product_id
-    inner join sizes as C on C.size_id = A.size_id where B.product_id =?;`;
+    B.type as type,C.name as sizeName from product_size as A
+    INNER JOIN products as B on B.product_id = A.product_id
+    INNER JOIN sizes as C on C.size_id = A.size_id WHERE B.product_id =?`;
     const [result] = await conn.promise().execute(queryString, [id]);
 
     if (result.length === 0) {
@@ -188,11 +184,196 @@ const getProductById = async (req, res) => {
     });
   }
 };
-//Products
-app.get("/v1/products", getAllProducts);
 
-//productbyid
-app.get("v1/products/:id", getProductById);
+//WISHLIST
+const getWishlist = async (req, res) => {
+  try {
+    const { user_id } = req.headers;
+    if (!user_id) {
+      res.status(400).send({
+        message: "bad request",
+      });
+    }
+    let queryString = `select C.user_id,C.name,B.name, B.description ,
+     B.image,B.price, B.rating,A.quantity,
+     A.is_active from wishlist as A
+    inner join products as B on B.product_id = A.product_id
+    inner join users as C on C.user_id = A.user_id where C.user_id = ?`;
+    const [result] = await conn.promise().execute(queryString, [user_id]);
+
+    if (result.length === 0) {
+      res.status(404).send({
+        message: "Nothing in a wishlist",
+      });
+    }
+    let countQueryString = `select count(C.user_id) as count from wishlist as A
+    inner join products as B on B.product_id = A.product_id
+    inner join users as C on C.user_id = A.user_id where C.user_id = ?`;
+    const [countResult] = await conn
+      .promise()
+      .execute(countQueryString, [user_id]);
+
+    const responseBody = {
+      message: "Succefully got wishlist",
+      list: result,
+      count: countResult[0].count,
+    };
+    res.status(200).send(responseBody);
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({
+      message: "Error while getting wishlist",
+      error,
+    });
+  }
+};
+
+//add wishlist
+const addWishlist = async (req, res) => {
+  try {
+    const { user_id, product_id, is_active, quantity } = req.body;
+    if (!user_id && !product_id && !is_active && !quantity) {
+      res.status(400).send({
+        message: "bad request",
+      });
+    }
+
+    let queryString = `insert into wishlist
+    (user_id,product_id,is_active,quantity)
+     values (?, ?, ?, ?)`;
+    const [result] = await conn
+      .promise()
+      .execute(queryString, [user_id, product_id, is_active, quantity]);
+
+    res.status(201).send({
+      message: "wishlist created successfully",
+      result,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({
+      message: "Error while creating wishlist",
+      error,
+    });
+  }
+};
+
+//update wishlist
+const updateWishlist = async (req, res) => {
+  try {
+    const { quantity } = req.body;
+    const { user_id } = req.headers;
+
+    if (!user_id) {
+      res.status(400).send({
+        message: "bad request",
+      });
+    }
+    if (!quantity) {
+      res.status(400).send({
+        message: "Bad request",
+      });
+    }
+
+    let queryString = `update wishlist
+    set quantity = ?
+    where user_id = ?`;
+    const [result] = await conn
+      .promise()
+      .execute(queryString, [quantity, user_id]);
+
+    if (result.affectedRows === 0) {
+      res.status(400).send({
+        message: "Nothing to update in a wishlist",
+      });
+    }
+    let countQueryString = `select count(C.user_id) as count from wishlist as A
+    inner join products as B on B.product_id = A.product_id
+    inner join users as C on C.user_id = A.user_id where C.user_id = ?`;
+    const [countResult] = await conn
+      .promise()
+      .execute(countQueryString, [user_id]);
+
+    const responseBody = {
+      message: "Wishlist updated successfully",
+      list: result,
+      count: countResult[0].count,
+    };
+    res.status(200).send(responseBody);
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({
+      message: "Error while updating wishlist",
+      error,
+    });
+  }
+};
+
+// delete wishlist
+const deleteWishlist = async (req, res) => {
+  try {
+    const { is_active } = req.body;
+    const { user_id } = req.headers;
+
+    if (!user_id) {
+      res.status(400).send({
+        message: "bad request",
+      });
+    }
+
+    if (is_active !== 0) {
+      res.status(400).send({
+        message: "Bad request",
+      });
+    }
+
+    let queryString = `update wishlist
+    set is_active = ?
+    where user_id = ?`;
+    const [result] = await conn
+      .promise()
+      .execute(queryString, [is_active, user_id]);
+
+    if (result.length === 0) {
+      res.status(400).send({
+        message: "Nothing in a wishlist",
+      });
+    }
+    let countQueryString = `select count(C.user_id) as count from wishlist as A
+    inner join products as B on B.product_id = A.product_id
+    inner join users as C on C.user_id = A.user_id where C.user_id = ?`;
+    const [countResult] = await conn
+      .promise()
+      .execute(countQueryString, [user_id]);
+
+    const responseBody = {
+      message: "Wishlist deleted successfully",
+      list: result,
+      count: countResult[0].count,
+    };
+    res.status(200).send(responseBody);
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({
+      message: "Error while deleting wishlist",
+      error,
+    });
+  }
+};
+
+//user routes
+// app.get("/v1/users", getAllUser);
+app.get("/v1/users/:id", getUserById);
+
+//Products routes
+app.get("/v1/products", getAllProducts);
+app.get("/v1/products/:id", getProductById);
+
+//Wishlist routes
+app.get("/v1/wishlist", getWishlist);
+app.post("/v1/wishlist", addWishlist);
+app.delete("/v1/wishlist/:id", deleteWishlist);
+app.put("/v1/wishlist/:id", updateWishlist);
 
 app.listen(3000, () => {
   console.log("Server Started");
