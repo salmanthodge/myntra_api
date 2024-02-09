@@ -1,6 +1,7 @@
 const express = require("express");
-const router = express.Router();
 const conn = require("./database");
+
+const router = express.Router();
 
 //GET ALL USERS
 // const getAllUser = async (req, res) => {
@@ -105,8 +106,8 @@ const getAllProducts = async (req, res) => {
     if (whereArray.length) {
       whereString = `WHERE ${whereArray.join(" and ")}`;
     }
-    // console.log(whereString);
-    // console.log(sortString);
+    console.log(whereString);
+    console.log(sortString);
     let queryString = `SELECT product_id,name,description,image,rating,price,is_active,type from products
        ${whereString} ${sortString} limit ? offset ?`;
     // console.log(queryString);

@@ -8,6 +8,7 @@ app.use(bodyParser.json());
 
 app.use((req, res, next) => {
   req.headers["request_id"] = uuid();
+  // console.log(req.headers);
   next();
 });
 
