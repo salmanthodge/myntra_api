@@ -6,12 +6,14 @@ show tables;
 CREATE TABLE users (
     user_id INT PRIMARY KEY AUTO_INCREMENT,
     name varchar(50) not null,
-    is_active boolean,
+    is_active boolean DEFAULT 1,
     email VARCHAR(50) UNIQUE NOT NULL,
     password VARCHAR(25) NOT NULL,
+    otp varchar(10) default null,
     created_at datetime default current_timestamp,
     updated_at datetime on update current_timestamp
 );
+
 
 create table products (
     product_id INT PRIMARY KEY AUTO_INCREMENT,
@@ -21,7 +23,7 @@ create table products (
     rating float default 0,
     price float not null,
     discount float,
-    is_active boolean,
+    is_active boolean default 1,
     type enum('Men','Women') not null,
     created_at datetime default current_timestamp,
     updated_at datetime on update current_timestamp

@@ -7,248 +7,386 @@
 	},
 	"item": [
 		{
-			"name": "getuserById",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "localhost:3000/v1/users/5",
-					"host": [
-						"localhost"
-					],
-					"port": "3000",
-					"path": [
-						"v1",
-						"users",
-						"5"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "products",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "localhost:3000/v1/products?start_price=10&end_price=40&type=Men&sort=desc&sortType=rating&limit=10&offset=0",
-					"host": [
-						"localhost"
-					],
-					"port": "3000",
-					"path": [
-						"v1",
-						"products"
-					],
-					"query": [
-						{
-							"key": "start_price",
-							"value": "10"
+			"name": "user",
+			"item": [
+				{
+					"name": "registorUser",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n            \"name\": \"salman shaikh\",\r\n            \"email\": \"salman@example.com\",\r\n            \"password\": \"1234567890\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
 						},
-						{
-							"key": "end_price",
-							"value": "40"
-						},
-						{
-							"key": "type",
-							"value": "Men"
-						},
-						{
-							"key": "sort",
-							"value": "desc"
-						},
-						{
-							"key": "sortType",
-							"value": "rating"
-						},
-						{
-							"key": "limit",
-							"value": "10"
-						},
-						{
-							"key": "offset",
-							"value": "0"
+						"url": {
+							"raw": "localhost:3000/v1/users",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"v1",
+								"users"
+							]
 						}
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "getProductById",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "localhost:3000/v1/products/1",
-					"host": [
-						"localhost"
-					],
-					"port": "3000",
-					"path": [
-						"v1",
-						"products",
-						"1"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "getWishList",
-			"protocolProfileBehavior": {
-				"disableBodyPruning": true
-			},
-			"request": {
-				"method": "GET",
-				"header": [
-					{
-						"key": "user_id",
-						"value": "1",
-						"type": "text"
 					},
-					{
-						"key": "user_id",
-						"value": "2",
-						"type": "text",
-						"disabled": true
+					"response": []
+				},
+				{
+					"name": "loginUser",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\":\"salman@example.com\",\r\n    \"password\":\"0987654321\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:3000/v1/login",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"v1",
+								"login"
+							]
+						}
 					},
-					{
-						"key": "user_id",
-						"value": "3",
-						"type": "text",
-						"disabled": true
-					}
-				],
-				"body": {
-					"mode": "raw",
-					"raw": "{\r\n    \"quantity\":3\r\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
+					"response": []
 				},
-				"url": {
-					"raw": "localhost:3000/v1/wishlist/1",
-					"host": [
-						"localhost"
-					],
-					"port": "3000",
-					"path": [
-						"v1",
-						"wishlist",
-						"1"
-					]
+				{
+					"name": "forgotpassword",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\":\"salman@example.com\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:3000/v1/forgot-password",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"v1",
+								"forgot-password"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "resestPassword",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\":\"salman@example.com\",\r\n    \"otp\":\"1039\",\r\n    \"newPassword\":\"0987654321\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:3000/v1/reset-password",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"v1",
+								"reset-password"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getuserById",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:3000/v1/users/5",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"v1",
+								"users",
+								"5"
+							]
+						}
+					},
+					"response": []
 				}
-			},
-			"response": []
+			]
 		},
 		{
-			"name": "updateWishlist",
-			"request": {
-				"method": "PUT",
-				"header": [
-					{
-						"key": "user_id",
-						"value": "1",
-						"type": "text"
-					}
-				],
-				"body": {
-					"mode": "raw",
-					"raw": "{\r\n    \"quantity\":2\r\n}",
-					"options": {
-						"raw": {
-							"language": "json"
+			"name": "product",
+			"item": [
+				{
+					"name": "products",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:3000/v1/products?start_price=10&end_price=40&type=Men&sort=desc&sortType=rating&limit=10&offset=0",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"v1",
+								"products"
+							],
+							"query": [
+								{
+									"key": "start_price",
+									"value": "10"
+								},
+								{
+									"key": "end_price",
+									"value": "40"
+								},
+								{
+									"key": "type",
+									"value": "Men"
+								},
+								{
+									"key": "sort",
+									"value": "desc"
+								},
+								{
+									"key": "sortType",
+									"value": "rating"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								},
+								{
+									"key": "offset",
+									"value": "0"
+								}
+							]
 						}
-					}
+					},
+					"response": []
 				},
-				"url": {
-					"raw": "localhost:3000/v1/wishlist/1",
-					"host": [
-						"localhost"
-					],
-					"port": "3000",
-					"path": [
-						"v1",
-						"wishlist",
-						"1"
-					]
+				{
+					"name": "getProductById",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "user_id",
+								"value": "1",
+								"type": "text"
+							},
+							{
+								"key": "token",
+								"value": "123",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "localhost:3000/v1/products/1",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"v1",
+								"products",
+								"1"
+							]
+						}
+					},
+					"response": []
 				}
-			},
-			"response": []
+			]
 		},
 		{
-			"name": "deleteWishlist",
-			"request": {
-				"method": "DELETE",
-				"header": [
-					{
-						"key": "user_id",
-						"value": "1",
-						"type": "text"
-					}
-				],
-				"body": {
-					"mode": "raw",
-					"raw": "{\r\n    \"is_active\":0\r\n}",
-					"options": {
-						"raw": {
-							"language": "json"
+			"name": "wishlist",
+			"item": [
+				{
+					"name": "getWishList",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "user_id",
+								"value": "1",
+								"type": "text"
+							},
+							{
+								"key": "user_id",
+								"value": "2",
+								"type": "text",
+								"disabled": true
+							},
+							{
+								"key": "user_id",
+								"value": "3",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"quantity\":3\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:3000/v1/wishlist/1",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"v1",
+								"wishlist",
+								"1"
+							]
 						}
-					}
+					},
+					"response": []
 				},
-				"url": {
-					"raw": "localhost:3000/v1/wishlist/1",
-					"host": [
-						"localhost"
-					],
-					"port": "3000",
-					"path": [
-						"v1",
-						"wishlist",
-						"1"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "addwishlist",
-			"request": {
-				"method": "POST",
-				"header": [
-					{
-						"key": "user_id",
-						"value": "2",
-						"type": "text",
-						"disabled": true
-					}
-				],
-				"body": {
-					"mode": "raw",
-					"raw": "{\r\n    \"user_id\":1,\r\n     \"product_id\":2,\r\n      \"is_active\":1,\r\n     \"quantity\":3\r\n}",
-					"options": {
-						"raw": {
-							"language": "json"
+				{
+					"name": "updateWishlist",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "user_id",
+								"value": "1",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"quantity\":2\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:3000/v1/wishlist/1",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"v1",
+								"wishlist",
+								"1"
+							]
 						}
-					}
+					},
+					"response": []
 				},
-				"url": {
-					"raw": "localhost:3000/v1/wishlist",
-					"host": [
-						"localhost"
-					],
-					"port": "3000",
-					"path": [
-						"v1",
-						"wishlist"
-					]
+				{
+					"name": "deleteWishlist",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "user_id",
+								"value": "1",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"is_active\":0\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:3000/v1/wishlist/1",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"v1",
+								"wishlist",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "addwishlist",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "user_id",
+								"value": "2",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"user_id\":1,\r\n     \"product_id\":2,\r\n      \"is_active\":1,\r\n     \"quantity\":3\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:3000/v1/wishlist",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"v1",
+								"wishlist"
+							]
+						}
+					},
+					"response": []
 				}
-			},
-			"response": []
+			]
 		}
 	]
 }

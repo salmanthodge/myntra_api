@@ -2,6 +2,7 @@ const express = require("express");
 const conn = require("./database");
 
 const router = express.Router();
+const app = express();
 
 //GET ALL USERS
 // const getAllUser = async (req, res) => {
@@ -33,6 +34,151 @@ const router = express.Router();
 //     });
 //   }
 // };
+
+//Registor USER
+const registerUser = async (req, res) => {
+  try {
+    const { name, email, password } = req.body;
+    if (!req.body || !req.body.name || !req.body.email || !req.body.password) {
+      return res.status(400).send({
+        message: "bad request",
+      });
+    }
+    let queryString = `insert into users
+      (name,email,password)
+       values (?, ?, ?)`;
+    const [result] = await conn
+      .promise()
+      .execute(queryString, [name, email, password]);
+
+    res.status(201).send({
+      message: "User created successfully",
+      result,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({
+      message: "Error while creating user",
+      error,
+    });
+  }
+};
+
+//LOGIN USER
+const loginUser = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    if (!email && !password) {
+      res.status(400).send({
+        message: "Misssing parameters",
+      });
+    } else {
+      let queryString = `SELECT email,password from users where email =? and password =?`;
+      const [result] = await conn
+        .promise()
+        .execute(queryString, [email, password]);
+
+      if (result.length === 0) {
+        res.status(404).send({
+          message: "User not found",
+        });
+      } else {
+        res.status(200).send({
+          message: "Login Successfully ",
+          result,
+        });
+      }
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({
+      message: "Error while getting user",
+      error,
+    });
+  }
+};
+
+//FORGOT PASSWORD
+const generateRandomOTP = () => {
+  // Generate a random 4-digit OTP
+  return Math.floor(1000 + Math.random() * 9000);
+};
+
+const forgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      res.status(400).send({
+        message: "Missing email parameter",
+      });
+      return;
+    }
+
+    // Check if the email exists in the database
+    let queryString = `SELECT email FROM users WHERE email = ?`;
+    const [result] = await conn.promise().execute(queryString, [email]);
+
+    if (result.length === 0) {
+      res.status(404).send({
+        message: "Email not found",
+      });
+      return;
+    }
+
+    // Assuming you have a field named 'otp' in your users table
+    const otp = generateRandomOTP();
+
+    queryString = `UPDATE users SET otp = ? WHERE email = ?`;
+    await conn.promise().execute(queryString, [otp, email]);
+
+    res.status(200).send({
+      message: "OTP sent for password reset",
+      otp,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send({
+      message: "Error during password reset",
+    });
+  }
+};
+
+//reset password
+const resetPassword = async (req, res) => {
+  try {
+    const { email, otp, newPassword } = req.body;
+
+    if (!email || !otp || !newPassword) {
+      res.status(400).send({
+        message: "Missing parameters",
+      });
+      return;
+    }
+
+    let queryString = `SELECT otp FROM users WHERE email = ?`;
+    const [result] = await conn.promise().execute(queryString, [email]);
+
+    if (result.length === 0 || result[0].otp !== otp) {
+      res.status(404).send({
+        message: "Invalid OTP",
+      });
+    } else {
+      // Update the password and clear the OTP after successful verification
+      queryString = `UPDATE users SET password = ?, otp = null WHERE email = ?`;
+      await conn.promise().execute(queryString, [newPassword, email]);
+
+      res.status(200).send({
+        message: "Password reset successfully",
+      });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).send({
+      message: "Error during password reset",
+    });
+  }
+};
 
 //GET USER
 const getUserById = async (req, res) => {
@@ -349,13 +495,30 @@ const deleteWishlist = async (req, res) => {
   }
 };
 
+const auth = (req, res, next) => {
+  // const { user_id, token } = req.headers;
+  if (req.headers && req.headers.user_id && req.headers.token) {
+    next();
+  } else {
+    res.status(400).send({
+      message: "user_id and token not found",
+    });
+  }
+};
+
 //user routes
 // app.get("/v1/users", getAllUser);
 router.get("/users/:id", getUserById);
 
+//auth routes
+router.post("/users", registerUser);
+router.post("/login", loginUser);
+router.post("/forgot-password", forgotPassword);
+router.post("/reset-password", resetPassword);
+
 //Products routes
 router.get("/products", getAllProducts);
-router.get("/products/:id", getProductById);
+router.get("/products/:id", auth, getProductById); //middleware added
 
 //Wishlist routes
 router.get("/wishlist", getWishlist);
