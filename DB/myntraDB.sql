@@ -8,7 +8,7 @@ CREATE TABLE users (
     name varchar(50) not null,
     is_active boolean DEFAULT 1,
     email VARCHAR(50) UNIQUE NOT NULL,
-    password VARCHAR(25) NOT NULL,
+    password VARCHAR(256) NOT NULL,
     otp varchar(10) default null,
     created_at datetime default current_timestamp,
     updated_at datetime on update current_timestamp

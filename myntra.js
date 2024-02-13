@@ -1,5 +1,7 @@
 const express = require("express");
 const conn = require("./database");
+const bcrypt = require("bcrypt");
+const saltRounds = 10;
 
 const router = express.Router();
 const app = express();
@@ -44,12 +46,13 @@ const registerUser = async (req, res) => {
         message: "bad request",
       });
     }
+    const hashPassword = await bcrypt.hash(password, saltRounds);
     let queryString = `insert into users
       (name,email,password)
        values (?, ?, ?)`;
     const [result] = await conn
       .promise()
-      .execute(queryString, [name, email, password]);
+      .execute(queryString, [name, email, hashPassword]);
 
     res.status(201).send({
       message: "User created successfully",
@@ -72,22 +75,25 @@ const loginUser = async (req, res) => {
       res.status(400).send({
         message: "Misssing parameters",
       });
-    } else {
-      let queryString = `SELECT email,password from users where email =? and password =?`;
-      const [result] = await conn
-        .promise()
-        .execute(queryString, [email, password]);
+    }
+    let queryString = `SELECT email,password from users where email =? `;
+    const [result] = await conn.promise().execute(queryString, [email]);
 
-      if (result.length === 0) {
-        res.status(404).send({
-          message: "User not found",
-        });
-      } else {
-        res.status(200).send({
-          message: "Login Successfully ",
-          result,
-        });
-      }
+    if (result.length === 0) {
+      res.status(404).send({
+        message: "User not found",
+      });
+    }
+    const hashedPassword = result[0].password;
+    const passwordMatch = await bcrypt.compare(password, hashedPassword);
+    if (passwordMatch) {
+      res.status(200).send({
+        message: "Login Successfully",
+      });
+    } else {
+      res.status(401).send({
+        message: "Incorrect password",
+      });
     }
   } catch (error) {
     console.log(error);
