@@ -1,6 +1,7 @@
 const express = require("express");
 const conn = require("./database");
 const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 const saltRounds = 10;
 
 const router = express.Router();
@@ -86,15 +87,16 @@ const loginUser = async (req, res) => {
     }
     const hashedPassword = result[0].password;
     const passwordMatch = await bcrypt.compare(password, hashedPassword);
-    if (passwordMatch) {
-      res.status(200).send({
-        message: "Login Successfully",
-      });
-    } else {
-      res.status(401).send({
+    if (!passwordMatch) {
+      res.status(400).send({
         message: "Incorrect password",
       });
     }
+    const token = jwt.sign({ user_id: result[0].id }, "test");
+    res.status(200).send({
+      message: "Login Successfully",
+      token,
+    });
   } catch (error) {
     console.log(error);
     res.status(500).send({
@@ -258,8 +260,8 @@ const getAllProducts = async (req, res) => {
     if (whereArray.length) {
       whereString = `WHERE ${whereArray.join(" and ")}`;
     }
-    console.log(whereString);
-    console.log(sortString);
+    // console.log(whereString);
+    // console.log(sortString);
     let queryString = `SELECT product_id,name,description,image,rating,price,is_active,type from products
        ${whereString} ${sortString} limit ? offset ?`;
     // console.log(queryString);
@@ -501,15 +503,25 @@ const deleteWishlist = async (req, res) => {
   }
 };
 
-const auth = (req, res, next) => {
+const authMiddleware = (req, res, next) => {
   // const { user_id, token } = req.headers;
   if (req.headers && req.headers.user_id && req.headers.token) {
+    try {
+      const token = req.headers.token;
+      const decodedtoken = jwt.verify(token, "test");
+      console.log(decodedtoken);
+    } catch (err) {
+      console.log(err);
+      res.status(400).send({
+        message: "Invalid Token",
+      });
+    }
     next();
-  } else {
-    res.status(400).send({
-      message: "user_id and token not found",
-    });
+    return;
   }
+  res.status(400).send({
+    message: "Token required",
+  });
 };
 
 //user routes
@@ -523,13 +535,13 @@ router.post("/forgot-password", forgotPassword);
 router.post("/reset-password", resetPassword);
 
 //Products routes
-router.get("/products", getAllProducts);
-router.get("/products/:id", auth, getProductById); //middleware added
+router.get("/products", authMiddleware, getAllProducts);
+router.get("/products/:id", authMiddleware, getProductById); //middleware added
 
 //Wishlist routes
-router.get("/wishlist", getWishlist);
-router.post("/wishlist", addWishlist);
-router.delete("/wishlist/:id", deleteWishlist);
-router.put("/wishlist/:id", updateWishlist);
+router.get("/wishlist", authMiddleware, getWishlist);
+router.post("/wishlist", authMiddleware, addWishlist);
+router.delete("/wishlist/:id", authMiddleware, deleteWishlist);
+router.put("/wishlist/:id", authMiddleware, updateWishlist);
 
 module.exports = router;
