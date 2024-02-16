@@ -5,7 +5,6 @@ const jwt = require("jsonwebtoken");
 const saltRounds = 10;
 
 const router = express.Router();
-const app = express();
 
 //GET ALL USERS
 // const getAllUser = async (req, res) => {
@@ -79,6 +78,7 @@ const loginUser = async (req, res) => {
     }
     let queryString = `SELECT email,password from users where email =? `;
     const [result] = await conn.promise().execute(queryString, [email]);
+    // console.log([result]);
 
     if (result.length === 0) {
       res.status(404).send({
