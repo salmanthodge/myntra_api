@@ -3,7 +3,10 @@ const conn = require("./database");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const saltRounds = 10;
-
+var morgan = require("morgan");
+var logger = morgan("combined");
+var fs = require('fs');
+var path = require('path')
 const router = express.Router();
 
 //GET ALL USERS
@@ -277,7 +280,12 @@ const getAllProducts = async (req, res) => {
       list: result,
       count: countResult[0].count,
     };
+    morgan('common', {
+      stream: fs.createWriteStream(path.join(__dirname, 'access.log'), { flags: 'a' },console.log(responseBody))
+      
+    })
     res.status(200).send(responseBody);
+   
     // console.log(result);
   } catch (error) {
     console.log(error);
